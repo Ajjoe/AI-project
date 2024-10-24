@@ -1,0 +1,5 @@
+1.create the function that uses the open AI api in chat and in chat
+2.This should all be ran the ai file
+3.create the GUI outline
+4.take the input from the gui then feed in into the API function
+5.output the response from the ai
