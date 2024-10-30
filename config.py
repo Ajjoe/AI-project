@@ -1,2 +1,0 @@
-OPENAIKEY = "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"
-             
