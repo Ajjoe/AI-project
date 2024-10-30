@@ -1,5 +1,57 @@
-1.create the function that uses the open AI api in chat and in chat
-2.This should all be ran the ai file
-3.create the GUI outline
+1.create the function that uses the open AI api in chat and in chat< DONE >
+2.This should all be ran the chat file <DONE>
+3.create the GUI outline <WORK IN PROGRESS>
 4.take the input from the gui then feed in into the API function
 5.output the response from the ai
+import streamlit as st
+import time
+from openai import OpenAI
+import os
+#below is the assistant id that I created in openai
+ID = "asst_ONsNwgCbXWt6vntInFW95DiH"
+#below is the apikey
+apikey = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=apikey)
+#taking the input from the user for the prompt
+prompt = input("Enter a prompt: ")
+#creating the thread chat with the user that specifies the role of the input and the content of the input through the api
+
+def createchat(question):
+    chat = client.beta.threads.create(
+        messages=[{
+            "role": "user",
+            "content": prompt, 
+        }]
+    )
+    return chat
+def createrun(chat):
+    run = client.beta.threads.runs.create(thread_id=chat.id, assistant_id=ID, instructions="complete the prompt while providing a response in a clear and concise format using the provided file to answer the question")
+    # This creates the api run that takes the thread id and the assistant id and the additional instructions for the run
+    print(f"Run ID: {run.id}")
+    
+    while run.status != "completed":
+        run = client.beta.threads.runs.retrieve(thread_id=chat.id, run_id=run.id)
+        time.sleep(1)
+    
+    message_response = client.beta.threads.messages.list(thread_id=chat.id)
+    last_message = message_response.data[-1]
+    return last_message.content[0].text.value
+
+def makegui():
+    st.set_page_config(layout="wide")
+    st.title("Car Information Portal")
+
+    with st.form(key='user_input'):
+        prompt = st.text_input("Please enter your car prompt and I will try to help:")
+        submit = st.form_submit_button(label="Submit")
+
+    if submit:
+        chat = createchat(prompt)
+        response = createrun(chat)
+        st.write(f"Response: {response}")
+
+def main():
+    makegui()
+
+if __name__ == "__main__":
+    main()
